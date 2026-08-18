@@ -283,14 +283,22 @@
 
       const dotX = xScale(currentDate);
 
-      // ── Dynamic Y scale ───────────────────────────────────────────────────
+      // ── Dynamic Y scale avec lerp haut + padding bas dynamique ───────────
       const rawYMax = Math.max(1, d3.max(currentData, d => Math.max(
         d.invested, d.value_with_div
       )));
       const targetCeiling = rawYMax * 1.2;
       smoothYMax += (targetCeiling - smoothYMax) * 0.05;
       if (smoothYMax < rawYMax) smoothYMax = rawYMax;
-      yScale.domain([0, smoothYMax]);
+
+      // Padding bas : garantit que "invested" reste ≥ 50px au-dessus de l'axe X
+      // Calcul direct (sans lerp) : domainMin tel que yScale(invested) = iH - 50
+      // yScale(v) = iH*(smoothYMax - v)/(smoothYMax - domainMin) = iH - 50
+      // → domainMin = smoothYMax - (smoothYMax - invested)*iH/(iH - 50)
+      const minGapPx = 50;
+      const rawBottom = smoothYMax - (smoothYMax - last.invested) * iH / (iH - minGapPx);
+      const domainMin = Math.min(rawBottom, -smoothYMax * 0.01); // toujours un peu négatif
+      yScale.domain([domainMin, smoothYMax]);
 
       // ── Redraw curves (currentData only — paths end at currentDate) ────────
       const sampled = currentData.filter((_, i, arr) =>
@@ -300,9 +308,10 @@
         lineEls[c.key].attr('d', lineGen(c.key)(sampled));
       });
 
-      // ── Y axis + horizontal grid ───────────────────────────────────────────
-      gridG.call(d3.axisLeft(yScale).ticks(4).tickSize(-iW).tickFormat(''));
-      yAxisG.call(d3.axisLeft(yScale).ticks(4).tickFormat(fmtVal).tickSize(10).tickPadding(14));
+      // ── Y axis + horizontal grid (ticks filtrés ≥ 0) ─────────────────────
+      const yTicks = yScale.ticks(4).filter(t => t >= 0);
+      gridG.call(d3.axisLeft(yScale).tickValues(yTicks).tickSize(-iW).tickFormat(''));
+      yAxisG.call(d3.axisLeft(yScale).tickValues(yTicks).tickFormat(fmtVal).tickSize(10).tickPadding(14));
 
       // ── X axis + vertical grid: smart tick selection ──────────────────────
       const histYears = d3.timeYear.range(
