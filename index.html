@@ -148,12 +148,10 @@
     { key: 'value_with_div', color: C.value,    label: [companyName],       sw: 7 },
   ];
 
-  // ── Scales ────────────────────────────────────────────────────────────────
-  // xScale: fixed — full data range always visible from frame 1
-  const xScale = d3.scaleTime()
-    .domain([startDate, endDate])
-    .range([0, iW]);
-  // yScale: dynamic domain updated each frame
+  // ── Scales (both dynamic, updated each frame) ─────────────────────────────
+  // xScale: [startDate, currentDate] → [0, iW]  — grows as animation progresses
+  // yScale: [0, currentMax * 1.1]   → [iH, 0]  — same logic as before
+  const xScale = d3.scaleTime().range([0, iW]);
   const yScale = d3.scaleLinear().range([iH, 0]);
 
   // ── Path generators ───────────────────────────────────────────────────────
@@ -162,48 +160,16 @@
     .y(d => yScale(d[key]))
     .curve(d3.curveCatmullRom.alpha(0.5));
 
-  // ── X-axis ticks: all years if ≤5, every 2nd year if >5 ──────────────────
-  const allYears = d3.timeYear.range(
-    d3.timeYear.ceil(startDate),
-    d3.timeYear.offset(endDate, 1)
-  );
-  const tickStep = allYears.length > 5 ? 2 : 1;
-  const xTicks   = allYears.filter((_, i) => i % tickStep === 0);
-
-  // ── SVG layer order: grids → axes → clipped curves → dots → labels ───────
+  // ── SVG layer order: grids → axes → curves → dots → labels ───────────────
   const gridG  = g.append('g').attr('class', 'grid');
   const xGridG = g.append('g').attr('class', 'x-grid').attr('transform', `translate(0,${iH})`);
   const xAxisG = g.append('g').attr('class', 'axis x-axis').attr('transform', `translate(0,${iH})`);
   const yAxisG = g.append('g').attr('class', 'axis y-axis');
 
-  // X-axis and vertical grid are static (xScale is fixed) — draw once
-  xGridG.call(
-    d3.axisBottom(xScale).tickValues(xTicks).tickFormat('').tickSize(-iH)
-  );
-  xAxisG.call(
-    d3.axisBottom(xScale)
-      .tickValues(xTicks)
-      .tickFormat(d3.timeFormat('%Y'))
-      .tickSize(10)
-  );
-  xAxisG.selectAll('.tick text')
-    .style('text-anchor', 'end')
-    .attr('transform', 'rotate(-40)')
-    .attr('dx', '-0.6em')
-    .attr('dy', '0.05em');
-
-  // ClipPath: reveals curves left → right as animation progresses
-  svg.append('defs').append('clipPath').attr('id', 'reveal-clip')
-    .append('rect').attr('id', 'clip-rect')
-    .attr('x', 0).attr('y', -margin.top)
-    .attr('width', 0).attr('height', iH + margin.top + 20);
-
-  const clipped = g.append('g').attr('clip-path', 'url(#reveal-clip)');
-
-  // Curve lines inside clip
+  // Curve lines (no clipPath — paths drawn only up to currentData)
   const lineEls = {};
   curveDefs.forEach(c => {
-    lineEls[c.key] = clipped.append('path')
+    lineEls[c.key] = g.append('path')
       .attr('fill', 'none')
       .attr('stroke', c.color)
       .attr('stroke-width', c.sw)
@@ -254,11 +220,13 @@
       const currentData = data.slice(0, Math.max(2, currentIdx + 1));
       const last        = currentData[currentData.length - 1];
 
-      // Dot x: follows the current date position on the fixed xScale
-      const dotX = xScale(new Date(last.date));
+      // ── Dynamic X scale: currentDate at 90% of width (10% right headroom) ───
+      const currentDate = new Date(last.date);
+      const timeSpan = currentDate.getTime() - startDate.getTime();
+      const xEndDate  = new Date(startDate.getTime() + timeSpan / 0.9);
+      xScale.domain([startDate, xEndDate]);
 
-      // ── Advance clip rect ─────────────────────────────────────────────────
-      d3.select('#clip-rect').attr('width', progress * iW);
+      const dotX = xScale(currentDate); // ≈ 90% of iW
 
       // ── Dynamic Y scale ───────────────────────────────────────────────────
       const rawYMax = Math.max(1, d3.max(currentData, d => Math.max(
@@ -269,7 +237,7 @@
       if (smoothYMax < rawYMax) smoothYMax = rawYMax;
       yScale.domain([0, smoothYMax]);
 
-      // ── Redraw curves with updated yScale (full sampled dataset) ──────────
+      // ── Redraw curves (currentData only — paths end at currentDate) ────────
       const sampled = currentData.filter((_, i, arr) =>
         i % sStep === 0 || i === arr.length - 1
       );
@@ -277,17 +245,39 @@
         lineEls[c.key].attr('d', lineGen(c.key)(sampled));
       });
 
-      // ── Y axis + horizontal grid (dynamic) ────────────────────────────────
+      // ── Y axis + horizontal grid ───────────────────────────────────────────
       gridG.call(d3.axisLeft(yScale).ticks(4).tickSize(-iW).tickFormat(''));
       yAxisG.call(d3.axisLeft(yScale).ticks(4).tickFormat(fmtVal).tickSize(10));
 
-      // ── Dots at current position ──────────────────────────────────────────
+      // ── X axis + vertical grid: smart tick selection ──────────────────────
+      const histYears = d3.timeYear.range(
+        d3.timeYear.ceil(startDate),
+        d3.timeYear.offset(currentDate, 1)
+      ).filter(d => d <= currentDate);
+      const tickStep  = histYears.length > 5 ? 2 : 1;
+      const xTicks    = histYears.filter((_, i) => i % tickStep === 0);
+      xGridG.call(
+        d3.axisBottom(xScale).tickValues(xTicks).tickFormat('').tickSize(-iH)
+      );
+      xAxisG.call(
+        d3.axisBottom(xScale)
+          .tickValues(xTicks)
+          .tickFormat(d3.timeFormat('%Y'))
+          .tickSize(10)
+      );
+      xAxisG.selectAll('.tick text')
+        .style('text-anchor', 'end')
+        .attr('transform', 'rotate(-40)')
+        .attr('dx', '-0.6em')
+        .attr('dy', '0.05em');
+
+      // ── Dots at right edge ─────────────────────────────────────────────────
       curveDefs.forEach(c => {
         dotEls[c.key].attr('cx', dotX).attr('cy', yScale(last[c.key]));
       });
 
-      // ── Labels + values: follow dot, collision avoidance ──────────────────
-      const LX = dotX + 18;  // just right of the dot
+      // ── Labels + values: anchored right of dot, collision avoidance ────────
+      const LX = dotX + 18;
       const positions = curveDefs.map(c => ({
         key: c.key, adjY: yScale(last[c.key]), nLines: c.label.length,
       }));
