@@ -268,7 +268,7 @@
       const rawYMax = Math.max(1, d3.max(currentData, d => Math.max(
         d.invested, d.value_with_div
       )));
-      const targetCeiling = rawYMax * 1.1;
+      const targetCeiling = rawYMax * 1.2;
       smoothYMax += (targetCeiling - smoothYMax) * 0.05;
       if (smoothYMax < rawYMax) smoothYMax = rawYMax;
       yScale.domain([0, smoothYMax]);
