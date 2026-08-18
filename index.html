@@ -17,8 +17,16 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 90px 60px 70px;
+    padding: 90px 60px 0;
     gap: 55px;
+  }
+
+  #tiktok-bar {
+    flex-shrink: 0;
+    width: calc(100% + 120px); /* 100% content + 2×60px body padding */
+    margin: 0 -60px;
+    height: 260px;
+    background: #000000;
   }
 
   #headline {
@@ -76,6 +84,7 @@
 
 <div id="headline"></div>
 <div id="graph-wrapper"></div>
+<div id="tiktok-bar"></div>
 
 <script>
 (async () => {
