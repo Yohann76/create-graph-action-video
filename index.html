@@ -73,6 +73,31 @@
   }
   .grid path, .x-grid path { display: none; }
 
+  /* ── Barre résultat (entre graphique et bande TikTok) ── */
+  #result-bar {
+    flex-shrink: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  #result-label {
+    font-size: 28px;
+    font-weight: 700;
+    color: #999;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+  }
+  #result-pct {
+    font-size: 100px;
+    font-weight: 900;
+    letter-spacing: -3px;
+    line-height: 1;
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+  }
+
   /* ── Dot labels & values (right of curves) ── */
   .dot-label {
     font-size: 21px;
@@ -90,6 +115,10 @@
 
 <div id="headline"></div>
 <div id="graph-wrapper"></div>
+<div id="result-bar">
+  <span id="result-label"></span>
+  <span id="result-pct"></span>
+</div>
 <div id="tiktok-bar"></div>
 
 <script>
@@ -205,6 +234,10 @@
       .attr('y', -60);
   });
 
+  // ── Result bar DOM refs ───────────────────────────────────────────────────
+  const resultPctEl = document.getElementById('result-pct');
+  const resultLblEl = document.getElementById('result-label');
+
   // ── Animation ─────────────────────────────────────────────────────────────
   const totalDuration = (video.duration_seconds || 12) * 1000;
   const sStep      = Math.max(1, Math.floor(data.length / 400));
@@ -298,6 +331,13 @@
           .attr('y', baseY + c.label.length * LINE_H + 6)
           .text(fmtVal(last[c.key]));
       });
+
+      // ── Barre résultat ────────────────────────────────────────────────────
+      const roi    = last.invested > 0 ? ((last.value_with_div / last.invested) - 1) * 100 : 0;
+      const isGain = roi >= 0;
+      resultLblEl.textContent = isGain ? 'Gain total' : 'Perte totale';
+      resultPctEl.textContent = (isGain ? '+' : '') + roi.toFixed(1) + '%';
+      resultPctEl.style.color = isGain ? '#00C853' : '#E53935';
 
       if (progress < 1) {
         requestAnimationFrame(frame);
