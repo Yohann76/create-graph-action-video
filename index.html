@@ -40,7 +40,7 @@
     text-align: center;
     line-height: 1.45;
     letter-spacing: -0.3px;
-    -webkit-text-stroke: 1.5px #000;
+    -webkit-text-stroke: 1.5px currentColor;
   }
   #headline .prefix {
     letter-spacing: 1px;
@@ -138,6 +138,14 @@
   const hl = document.getElementById('headline');
   const headlineText = (text.headline || '').trim();
   const prefix       = (text.text_prefix || '').trim();
+  // Remplace <a>texte</a>, <b>texte</b>, etc. par des spans colorés
+  const tagColors = text.tag_colors || {};
+  function colorize(str) {
+    return Object.entries(tagColors).reduce((s, [tag, color]) =>
+      s.replace(new RegExp(`<${tag}>([^<]*)<\\/${tag}>`, 'g'),
+        `<span style="color:${color}">\$1</span>`), str);
+  }
+
   if (headlineText || prefix) {
     hl.style.fontSize = (text.font_size || 58) + 'px';
     hl.style.color    = text.color || '#000';
@@ -151,7 +159,9 @@
         sp.textContent = prefix + ' ';
         row.appendChild(sp);
       }
-      row.appendChild(document.createTextNode(line));
+      const content = document.createElement('span');
+      content.innerHTML = colorize(line);
+      row.appendChild(content);
       hl.appendChild(row);
     });
   } else {

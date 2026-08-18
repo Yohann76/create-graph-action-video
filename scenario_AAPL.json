@@ -1,7 +1,8 @@
 {
   "text": {
-    "headline": "You invested $1,299 in Apple\ninstead of buying the first iMac",
+    "headline": "You invested $1,299 in <a>Apple</a>\ninstead of buying the first iMac",
     "text_prefix": "POV:",
+    "tag_colors": { "a": "#86868B" },
     "company_name": "Apple",
     "company_color": "#86868B",
     "invested_label": "Invested",
