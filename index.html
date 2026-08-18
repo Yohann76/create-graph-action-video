@@ -32,13 +32,18 @@
   #headline {
     flex-shrink: 0;
     width: 100%;
-    font-size: 52px;
+    height: 290px;
+    overflow: hidden;
+    font-size: 58px;
     font-weight: 900;
-    color: #111;
+    color: #000;
     text-align: center;
-    line-height: 1.42;
-    white-space: pre-line;
-    letter-spacing: -0.5px;
+    line-height: 1.45;
+    letter-spacing: -0.3px;
+    -webkit-text-stroke: 1.5px #000;
+  }
+  #headline .prefix {
+    letter-spacing: 1px;
   }
 
   #graph-wrapper {
@@ -132,10 +137,23 @@
   // ── Headline (optional — hidden if empty or missing) ──────────────────────
   const hl = document.getElementById('headline');
   const headlineText = (text.headline || '').trim();
-  if (headlineText) {
-    hl.textContent    = headlineText;
-    hl.style.fontSize = (text.font_size || 52) + 'px';
-    hl.style.color    = text.color || '#111';
+  const prefix       = (text.text_prefix || '').trim();
+  if (headlineText || prefix) {
+    hl.style.fontSize = (text.font_size || 58) + 'px';
+    hl.style.color    = text.color || '#000';
+    hl.innerHTML      = '';
+    const lines = headlineText ? headlineText.split('\n') : [''];
+    lines.forEach((line, i) => {
+      const row = document.createElement('div');
+      if (i === 0 && prefix) {
+        const sp = document.createElement('span');
+        sp.className   = 'prefix';
+        sp.textContent = prefix + ' ';
+        row.appendChild(sp);
+      }
+      row.appendChild(document.createTextNode(line));
+      hl.appendChild(row);
+    });
   } else {
     hl.style.display = 'none';
   }

@@ -1,9 +1,9 @@
 {
   "text": {
-    "headline": "If you had invested $10/week\nin McDonald's for 10 years",
+    "headline": "You invested $1,299 in Apple\ninstead of buying the first iMac",
     "text_prefix": "POV:",
-    "company_name": "McDonald's",
-    "company_color": "#FFC300",
+    "company_name": "Apple",
+    "company_color": "#86868B",
     "invested_label": "Invested",
     "gain_label": "Total gain",
     "loss_label": "Total loss",
@@ -11,15 +11,15 @@
     "color": "#111111"
   },
   "data": {
-    "ticker": "MCD",
-    "start_date": "2016-08-18",
-    "start_investment": 0,
-    "weekly_investment": 10,
+    "ticker": "AAPL",
+    "start_date": "1998-08-15",
+    "start_investment": 1299,
+    "weekly_investment": 0,
     "currency": "USD",
     "reinvest_dividends": true
   },
   "video": {
-    "output": "video_MCD.mp4",
+    "output": "video_AAPL.mp4",
     "duration_seconds": 61,
     "fps": 30
   }
