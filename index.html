@@ -308,8 +308,11 @@
         d3.timeYear.ceil(startDate),
         d3.timeYear.offset(xEndDate, 1)
       ).filter(d => d <= xEndDate);
-      const tickStep  = histYears.length > 5 ? 2 : 1;
-      const xTicks    = histYears.filter((_, i) => i % tickStep === 0);
+      // Largeur estimée d'un label "2025" à 40px bold ≈ 4 × 0.65 × 40 + 24px de marge
+      const labelSlotW = Math.round(4 * 0.65 * 40) + 24; // ≈ 128px
+      const maxTicks   = Math.max(2, Math.floor(iW / labelSlotW));
+      const tickStep   = Math.max(1, Math.ceil(histYears.length / maxTicks));
+      const xTicks     = histYears.filter((_, i) => i % tickStep === 0);
       xGridG.call(
         d3.axisBottom(xScale).tickValues(xTicks).tickFormat('').tickSize(-iH)
       );
