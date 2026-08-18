@@ -239,27 +239,13 @@ create-graph-action-video/
 python3 render.py --scenario scenario.json
 ```
 
-## GitHub Copilot customizations
-
-This repository includes two customization types:
-
-### Prompt files for IDE chat
-
-Stored under `.github/prompts/`:
-
-- `scenario-reviewer.prompt.md`
-- `hook-headline-optimizer.prompt.md`
-- `ticker-idea-generator.prompt.md`
-
-These are reusable prompt files for Copilot in the IDE.
-
-### Custom agents for GitHub Agents tab
+# Agents testing github
 
 Stored under `.github/agents/`:
 
-- `scenario-reviewer.md`
-- `hook-headline-optimizer.md`
-- `ticker-idea-generator.md`
+- `scenario-reviewer.agent.md`
+- `hook-headline-optimizer.agent.md`
+- `ticker-idea-generator.agent.md`
 
 These are the profiles that should appear in GitHub's `Agents` tab once committed to the default branch and the page is refreshed.
 
