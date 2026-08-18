@@ -176,7 +176,8 @@
   const svgH = iH + margin.top + margin.bottom;
 
   const svg = d3.select('#graph-wrapper')
-    .append('svg').attr('width', W).attr('height', svgH);
+    .append('svg').attr('width', W).attr('height', svgH)
+    .style('overflow', 'visible');
   const g = svg.append('g')
     .attr('transform', `translate(${margin.left},${margin.top})`);
 
