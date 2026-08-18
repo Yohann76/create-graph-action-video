@@ -1,0 +1,93 @@
+name: Render Video
+
+on:
+  workflow_dispatch:
+    inputs:
+      ticker:
+        description: Stock ticker to render
+        required: true
+        default: MCD
+      start_date:
+        description: Investment start date (YYYY-MM-DD)
+        required: true
+        default: 2016-08-18
+      weekly_investment:
+        description: Weekly investment amount
+        required: true
+        default: "10"
+      headline:
+        description: Headline displayed at the top of the video
+        required: true
+        default: Si tu avais investi 10€ par semaine\ndans McDonald's depuis 10 ans
+      duration_seconds:
+        description: Video duration in seconds
+        required: true
+        default: "12"
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install FFmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Install Python dependencies
+        run: python -m pip install --upgrade pip && pip install pandas yfinance playwright
+
+      - name: Install Chromium for Playwright
+        run: python -m playwright install --with-deps chromium
+
+      - name: Generate scenario file
+        env:
+          INPUT_TICKER: ${{ inputs.ticker }}
+          INPUT_START_DATE: ${{ inputs.start_date }}
+          INPUT_WEEKLY_INVESTMENT: ${{ inputs.weekly_investment }}
+          INPUT_HEADLINE: ${{ inputs.headline }}
+          INPUT_DURATION_SECONDS: ${{ inputs.duration_seconds }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+
+          scenario = {
+              "text": {
+                  "headline": os.environ["INPUT_HEADLINE"],
+                  "font_size": 52,
+                  "color": "#111111",
+              },
+              "data": {
+                  "ticker": os.environ["INPUT_TICKER"],
+                  "start_date": os.environ["INPUT_START_DATE"],
+                  "weekly_investment": float(os.environ["INPUT_WEEKLY_INVESTMENT"]),
+                  "currency": "USD",
+                  "reinvest_dividends": True,
+              },
+              "video": {
+                  "output": "generated_video.mp4",
+                  "duration_seconds": float(os.environ["INPUT_DURATION_SECONDS"]),
+                  "fps": 30,
+              },
+          }
+
+          with open("generated_scenario.json", "w", encoding="utf-8") as file_handle:
+              json.dump(scenario, file_handle, ensure_ascii=False, indent=2)
+          PY
+
+      - name: Render video
+        run: python3 render.py --scenario generated_scenario.json
+
+      - name: Upload MP4 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rendered-video-${{ inputs.ticker }}
+          path: generated_video.mp4
+          if-no-files-found: error

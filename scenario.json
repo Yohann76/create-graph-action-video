@@ -1,13 +1,12 @@
 {
   "text": {
-    "headline": "Si tu avais investi 10€ par semaine\ndans McDonald's au lieu d'y manger",
+    "headline": "Si tu avais investi 10€ par semaine\ndans McDonald's depuis 10 ans",
     "font_size": 52,
     "color": "#111111"
   },
   "data": {
     "ticker": "MCD",
-    "start_date": "2015-01-01",
-    "end_date": "2025-01-01",
+    "start_date": "2016-08-18",
     "weekly_investment": 10,
     "currency": "USD",
     "reinvest_dividends": true

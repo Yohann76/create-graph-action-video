@@ -239,6 +239,27 @@ create-graph-action-video/
 python3 render.py --scenario scenario.json
 ```
 
+## GitHub Actions
+
+### Manual video rendering
+
+The repository includes a manual GitHub Actions workflow at `.github/workflows/render-video.yml`.
+
+You can trigger it from the `Actions` tab with these inputs:
+
+- `ticker`
+- `start_date`
+- `weekly_investment`
+- `headline`
+- `duration_seconds`
+
+The workflow:
+
+1. installs Python, FFmpeg, and Playwright
+2. builds a temporary `generated_scenario.json`
+3. runs `python3 render.py --scenario generated_scenario.json`
+4. uploads `generated_video.mp4` as an artifact
+
 # Agents testing github
 
 Stored under `.github/agents/`:
