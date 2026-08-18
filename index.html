@@ -58,11 +58,11 @@
   }
 
   /* ── Grid ── */
-  .grid line {
-    stroke: #e8e8e8;
-    stroke-width: 1.5px;
+  .grid line, .x-grid line {
+    stroke: #e0e0e0;
+    stroke-width: 1px;
   }
-  .grid path { display: none; }
+  .grid path, .x-grid path { display: none; }
 
   /* ── Dot labels (right margin) ── */
   .dot-label {
@@ -83,7 +83,7 @@
   const res      = await fetch('_computed.json');
   const scenario = await res.json();
   const { text, video, computed } = scenario;
-  const { series, has_dividends, currency } = computed;
+  const { series, currency } = computed;
 
   // ── Headline ──────────────────────────────────────────────────────────────
   const hl = document.getElementById('headline');
@@ -128,15 +128,14 @@
   // Min initial window: 45 days so axis is never degenerate at the very start
   const MIN_WINDOW_MS = 45 * 24 * 3600 * 1000;
 
-  // ── Curve definitions ─────────────────────────────────────────────────────
-  const C = { invested: '#E53935', noDiv: '#2979FF', withDiv: '#00C853' };
+  // ── Curve definitions (2 curves only) ────────────────────────────────────
+  // value_with_div: yfinance auto_adjust=True handles splits; dividends are
+  // manually reinvested as new shares → correct total-return calculation.
+  const companyName = text.company_name || computed.ticker;
+  const C = { invested: '#E53935', value: '#00C853' };
   const curveDefs = [
-    { key: 'invested',       color: C.invested, label: ['Montant investi'],           sw: 5 },
-    { key: 'value_no_div',   color: C.noDiv,    label: ['Sans dividendes'],            sw: 7 },
-    ...(has_dividends ? [{
-      key: 'value_with_div', color: C.withDiv,
-      label: ['Avec dividendes', 'réinvestis'], sw: 7,
-    }] : []),
+    { key: 'invested',       color: C.invested, label: ['Montant investi'], sw: 5 },
+    { key: 'value_with_div', color: C.value,    label: [companyName],       sw: 7 },
   ];
 
   // ── Scales (domains updated every frame) ──────────────────────────────────
@@ -159,8 +158,9 @@
     .y1(d => yScale(d[key]))
     .curve(d3.curveCatmullRom.alpha(0.5));
 
-  // ── SVG layer order: grid → x-axis → y-axis → curves → dots → labels ─────
+  // ── SVG layer order: grids → axes → curves → dots → labels ──────────────
   const gridG  = g.append('g').attr('class', 'grid');
+  const xGridG = g.append('g').attr('class', 'x-grid').attr('transform', `translate(0,${iH})`);
   const xAxisG = g.append('g').attr('class', 'axis x-axis').attr('transform', `translate(0,${iH})`);
   const yAxisG = g.append('g').attr('class', 'axis y-axis');
 
@@ -172,10 +172,10 @@
     .attr('stroke-width', 1.5)
     .attr('stroke-dasharray', '6 4');
 
-  // Curve paths
+  // Curve paths (areas removed — white background kept clean)
   const areaEls = {}, lineEls = {};
   curveDefs.forEach(c => {
-    areaEls[c.key] = g.append('path').attr('fill', c.color).attr('fill-opacity', 0.09);
+    areaEls[c.key] = g.append('path').attr('fill', 'none');
     lineEls[c.key] = g.append('path')
       .attr('fill', 'none')
       .attr('stroke', c.color)
@@ -211,7 +211,10 @@
 
   // ── Animation ─────────────────────────────────────────────────────────────
   const totalDuration = (video.duration_seconds || 12) * 1000;
-  const SAMPLE_N      = 400;   // max path points per curve per frame
+  // Fixed step computed once from total data — prevents path jumping
+  const sStep      = Math.max(1, Math.floor(data.length / 400));
+  // Smoothed Y-max: lerps toward actual max each frame instead of jumping
+  let   smoothYMax = 1;
 
   setTimeout(() => {
     const t0 = performance.now();
@@ -233,16 +236,17 @@
       const visibleEnd = new Date(startDate.getTime() + windowMs);
       xScale.domain([startDate, visibleEnd]);
 
-      // ── Y scale: current data max (compact, 4 ticks) ──────────────────────
-      const yMax = Math.max(1, d3.max(currentData, d => Math.max(
+      // ── Y scale: lerp toward ceiling = rawYMax + 10 % headroom ──────────────
+      const rawYMax = Math.max(1, d3.max(currentData, d => Math.max(
         d.invested,
-        d.value_no_div,
-        has_dividends ? d.value_with_div : 0
+        d.value_with_div
       )));
-      yScale.domain([0, yMax * 1.08]).nice();
+      const targetCeiling = rawYMax * 1.1;             // always 10 % above data max
+      smoothYMax += (targetCeiling - smoothYMax) * 0.05;
+      if (smoothYMax < rawYMax) smoothYMax = rawYMax;  // never clip curves
+      yScale.domain([0, smoothYMax]);
 
-      // ── Sample current data for path rendering ────────────────────────────
-      const sStep   = Math.max(1, Math.floor(currentData.length / SAMPLE_N));
+      // ── Sample current data (fixed step = stable path between frames) ─────
       const sampled = currentData.filter((_, i, arr) =>
         i % sStep === 0 || i === arr.length - 1
       );
@@ -253,15 +257,21 @@
         lineEls[c.key].attr('d', lineGen(c.key)(sampled));
       });
 
-      // ── Y axis + grid (compact: 4 ticks) ──────────────────────────────────
+      // ── Y axis + horizontal grid ──────────────────────────────────────────
       gridG.call(d3.axisLeft(yScale).ticks(4).tickSize(-iW).tickFormat(''));
       yAxisG.call(d3.axisLeft(yScale).ticks(4).tickFormat(fmtVal).tickSize(10));
 
-      // ── X axis: auto ticks from D3, labels rotated ────────────────────────
-      // Show only historical ticks (≤ currentDate); right portion is blank
+      // ── X axis + vertical grid (same year ticks) ──────────────────────────
       const histYears = d3.timeYear.range(
         d3.timeYear.ceil(startDate),
         d3.timeYear.offset(currentDate, 1)
+      );
+      // Vertical grid lines for each year
+      xGridG.call(
+        d3.axisBottom(xScale)
+          .tickValues(histYears)
+          .tickFormat('')
+          .tickSize(-iH)
       );
       xAxisG.call(
         d3.axisBottom(xScale)
