@@ -1,0 +1,27 @@
+{
+  "text": {
+    "headline": "You invested $599 in <a>NVIDIA</a>\ninstead of buying a GTX 1080",
+    "text_prefix": "POV:",
+    "tag_colors": { "a": "#76B900" },
+    "company_name": "NVIDIA",
+    "company_color": "#76B900",
+    "invested_label": "Invested",
+    "gain_label": "Total gain",
+    "loss_label": "Total loss",
+    "font_size": 58,
+    "color": "#111111"
+  },
+  "data": {
+    "ticker": "NVDA",
+    "start_date": "2016-07-19",
+    "start_investment": 599,
+    "weekly_investment": 0,
+    "currency": "USD",
+    "reinvest_dividends": true
+  },
+  "video": {
+    "output": "video_NVDA.mp4",
+    "duration_seconds": 61,
+    "fps": 30
+  }
+}
