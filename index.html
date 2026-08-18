@@ -73,10 +73,15 @@
   }
   .grid path, .x-grid path { display: none; }
 
-  /* ── Dot labels (right margin) ── */
+  /* ── Dot labels & values (right of curves) ── */
   .dot-label {
     font-size: 21px;
     font-weight: 800;
+    font-family: inherit;
+  }
+  .dot-value {
+    font-size: 26px;
+    font-weight: 900;
     font-family: inherit;
   }
 </style>
@@ -209,10 +214,11 @@
       .attr('cx', -60).attr('cy', -60);
   });
 
-  // Labels just to the right of the drawing dot
-  const LX     = DRAW_X + 18;   // x anchor: dot radius (11) + small gap (7)
-  const LINE_H = 26;         // line-height for 2-line labels
-  const labelEls = {};
+  // Labels + dynamic values just to the right of the drawing dot
+  const LX      = DRAW_X + 18;  // x anchor: dot radius (11) + small gap (7)
+  const LINE_H  = 26;           // line-height for label lines
+  const VALUE_H = 34;           // height of the value line below the label
+  const labelEls = {}, valueEls = {};
   curveDefs.forEach(c => {
     labelEls[c.key] = c.label.map(txt =>
       g.append('text')
@@ -222,6 +228,11 @@
         .attr('y', -60)
         .text(txt)
     );
+    valueEls[c.key] = g.append('text')
+      .attr('class', 'dot-value')
+      .attr('fill', c.color)
+      .attr('x', LX)
+      .attr('y', -60);
   });
 
   // ── Animation ─────────────────────────────────────────────────────────────
@@ -307,23 +318,28 @@
           .attr('cy', yScale(last[c.key]));
       });
 
-      // ── Labels with collision avoidance ───────────────────────────────────
+      // ── Labels + values with collision avoidance ──────────────────────────
       const positions = curveDefs.map(c => ({
         key:    c.key,
         adjY:   yScale(last[c.key]),
         nLines: c.label.length,
       }));
       positions.sort((a, b) => a.adjY - b.adjY);
-      const MIN_SEP = 36;
+      // Each block = label lines + value line; keep at least 10px gap between blocks
       for (let i = 1; i < positions.length; i++) {
         const prev   = positions[i - 1];
-        const needed = prev.adjY + (prev.nLines - 1) * LINE_H + MIN_SEP;
+        const needed = prev.adjY + (prev.nLines * LINE_H) + VALUE_H + 10;
         if (positions[i].adjY < needed) positions[i].adjY = needed;
       }
       const posMap = Object.fromEntries(positions.map(p => [p.key, p.adjY]));
       curveDefs.forEach(c => {
         const baseY = posMap[c.key];
+        // Label lines
         labelEls[c.key].forEach((el, i) => el.attr('y', baseY + i * LINE_H));
+        // Value line just below the label
+        valueEls[c.key]
+          .attr('y', baseY + c.label.length * LINE_H + 6)
+          .text(fmtVal(last[c.key]));
       });
 
       // ── Next frame or done ────────────────────────────────────────────────
