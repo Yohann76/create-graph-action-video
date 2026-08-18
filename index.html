@@ -283,7 +283,7 @@
 
       // ── Y axis + horizontal grid ───────────────────────────────────────────
       gridG.call(d3.axisLeft(yScale).ticks(4).tickSize(-iW).tickFormat(''));
-      yAxisG.call(d3.axisLeft(yScale).ticks(4).tickFormat(fmtVal).tickSize(10));
+      yAxisG.call(d3.axisLeft(yScale).ticks(4).tickFormat(fmtVal).tickSize(10).tickPadding(14));
 
       // ── X axis + vertical grid: smart tick selection ──────────────────────
       const histYears = d3.timeYear.range(
@@ -300,12 +300,11 @@
           .tickValues(xTicks)
           .tickFormat(d3.timeFormat('%Y'))
           .tickSize(10)
+          .tickPadding(20)
       );
       xAxisG.selectAll('.tick text')
-        .style('text-anchor', 'end')
-        .attr('transform', 'rotate(-40)')
-        .attr('dx', '-0.6em')
-        .attr('dy', '0.05em');
+        .style('text-anchor', 'middle')
+        .attr('dy', '1em');
 
       // ── Dots at right edge ─────────────────────────────────────────────────
       curveDefs.forEach(c => {
