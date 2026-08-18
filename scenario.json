@@ -1,8 +1,11 @@
 {
   "text": {
-    "headline": "Si tu avais investi 10€ par semaine\ndans McDonald's depuis 10 ans",
+    "headline": "If you had invested $10 per week\nin McDonald's for 10 years",
     "company_name": "McDonald's",
-    "invested_label": "Montant investi",
+    "company_color": "#FFC300",
+    "invested_label": "Invested",
+    "gain_label": "Total gain",
+    "loss_label": "Total loss",
     "font_size": 52,
     "color": "#111111"
   },
