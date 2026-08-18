@@ -173,7 +173,7 @@
   const companyName = text.company_name || computed.ticker;
   const C = { invested: '#E53935', value: '#00C853' };
   const curveDefs = [
-    { key: 'invested',       color: C.invested, label: ['Montant investi'], sw: 8 },
+    { key: 'invested',       color: C.invested, label: [text.invested_label || 'Montant investi'], sw: 8 },
     { key: 'value_with_div', color: C.value,    label: [companyName],       sw: 12 },
   ];
 
