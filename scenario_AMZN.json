@@ -1,0 +1,27 @@
+{
+  "text": {
+    "headline": "If you had invested $10/week in\n<a>Amazon</a> instead of buying on Amazon",
+    "text_prefix": "POV:",
+    "tag_colors": { "a": "#FF9900" },
+    "company_name": "Amazon",
+    "company_color": "#FF9900",
+    "invested_label": "Invested",
+    "gain_label": "Total gain",
+    "loss_label": "Total loss",
+    "font_size": 52,
+    "color": "#111111"
+  },
+  "data": {
+    "ticker": "AMZN",
+    "start_date": "2015-01-01",
+    "start_investment": 0,
+    "weekly_investment": 10,
+    "currency": "USD",
+    "reinvest_dividends": false
+  },
+  "video": {
+    "output": "video_AMZN.mp4",
+    "duration_seconds": 61,
+    "fps": 30
+  }
+}

@@ -1,5 +1,7 @@
 # Skill — Créer une vidéo de graph boursier
 
+> **Langue** : tous les scénarios sont en anglais — headline, labels (`Invested`, `Total gain`, `Total loss`), nom de société.
+
 Générateur de vidéos verticales (1080×1920, TikTok/Reels/Shorts) animant l'évolution d'un investissement boursier dans le temps.
 
 ## Pipeline
