@@ -253,13 +253,16 @@
       const currentData = data.slice(0, Math.max(2, currentIdx + 1));
       const last        = currentData[currentData.length - 1];
 
-      // ── Dynamic X scale: currentDate at 90% of width (10% right headroom) ───
-      const currentDate = new Date(last.date);
-      const timeSpan = currentDate.getTime() - startDate.getTime();
-      const xEndDate  = new Date(startDate.getTime() + timeSpan / 0.9);
+      // ── Dynamic X scale — minimum 2 ans, dot à 90% au-delà ──────────────
+      const currentDate  = new Date(last.date);
+      const timeSpan     = currentDate.getTime() - startDate.getTime();
+      const TWO_YEARS_MS = 2 * 365.25 * 24 * 3600 * 1000;
+      const naturalEnd   = new Date(startDate.getTime() + timeSpan / 0.9);
+      const minEnd       = new Date(startDate.getTime() + TWO_YEARS_MS);
+      const xEndDate     = new Date(Math.max(naturalEnd.getTime(), minEnd.getTime()));
       xScale.domain([startDate, xEndDate]);
 
-      const dotX = xScale(currentDate); // ≈ 90% of iW
+      const dotX = xScale(currentDate);
 
       // ── Dynamic Y scale ───────────────────────────────────────────────────
       const rawYMax = Math.max(1, d3.max(currentData, d => Math.max(
@@ -285,8 +288,8 @@
       // ── X axis + vertical grid: smart tick selection ──────────────────────
       const histYears = d3.timeYear.range(
         d3.timeYear.ceil(startDate),
-        d3.timeYear.offset(currentDate, 1)
-      ).filter(d => d <= currentDate);
+        d3.timeYear.offset(xEndDate, 1)
+      ).filter(d => d <= xEndDate);
       const tickStep  = histYears.length > 5 ? 2 : 1;
       const xTicks    = histYears.filter((_, i) => i % tickStep === 0);
       xGridG.call(
