@@ -8,6 +8,7 @@
   "data": {
     "ticker": "MCD",
     "start_date": "2016-08-18",
+    "start_investment": 0,
     "weekly_investment": 10,
     "currency": "USD",
     "reinvest_dividends": true

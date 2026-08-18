@@ -23,13 +23,23 @@ def fetch_and_compute(data_config: dict) -> dict:
     end         = data_config.get("end_date", datetime.today().strftime("%Y-%m-%d"))
     weekly_inv  = data_config.get("weekly_investment")
     monthly_inv = data_config.get("monthly_investment")
-    inv_amount  = weekly_inv or monthly_inv
-    is_weekly   = weekly_inv is not None
+    start_inv   = float(data_config.get("start_investment", 0))
     reinvest    = data_config.get("reinvest_dividends", True)
     currency    = data_config.get("currency", "USD")
 
-    if not inv_amount:
-        raise ValueError("scenario.data must specify weekly_investment or monthly_investment")
+    # Determine periodic investment amount (can be 0)
+    if weekly_inv is not None:
+        inv_amount = float(weekly_inv)
+        is_weekly  = True
+    elif monthly_inv is not None:
+        inv_amount = float(monthly_inv)
+        is_weekly  = False
+    else:
+        inv_amount = 0.0
+        is_weekly  = True  # irrelevant when inv_amount == 0
+
+    if inv_amount == 0 and start_inv == 0:
+        raise ValueError("scenario.data must specify at least one of: start_investment, weekly_investment, monthly_investment")
 
     t = yf.Ticker(ticker)
 
@@ -72,13 +82,21 @@ def fetch_and_compute(data_config: dict) -> dict:
     shares_with_div = 0.0
     total_invested  = 0.0
     series = []
+    first_day = trading_days[0]
 
     for date in trading_days:
         price = float(prices[date])
         if price <= 0:
             continue
 
-        if date in inv_dates:
+        # Lump-sum on first available trading day
+        if date == first_day and start_inv > 0:
+            new_shares       = start_inv / price
+            shares_no_div   += new_shares
+            shares_with_div += new_shares
+            total_invested  += start_inv
+
+        if date in inv_dates and inv_amount > 0:
             new_shares       = inv_amount / price
             shares_no_div   += new_shares
             shares_with_div += new_shares

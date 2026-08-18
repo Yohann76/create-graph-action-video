@@ -46,8 +46,9 @@
     width: 100%;
     min-height: 0;
     display: flex;
-    align-items: center;
+    align-items: flex-end;   /* SVG colle vers la bande noire du bas */
     justify-content: center;
+    padding-bottom: 30px;    /* petit espace entre le graph et la barre */
   }
 
   /* ── Axes ── */
@@ -94,11 +95,16 @@
   const { text, video, computed } = scenario;
   const { series, currency } = computed;
 
-  // ── Headline ──────────────────────────────────────────────────────────────
+  // ── Headline (optional — hidden if empty or missing) ──────────────────────
   const hl = document.getElementById('headline');
-  hl.textContent  = text.headline;
-  hl.style.fontSize = (text.font_size || 52) + 'px';
-  hl.style.color    = text.color || '#111';
+  const headlineText = (text.headline || '').trim();
+  if (headlineText) {
+    hl.textContent    = headlineText;
+    hl.style.fontSize = (text.font_size || 52) + 'px';
+    hl.style.color    = text.color || '#111';
+  } else {
+    hl.style.display = 'none';
+  }
 
   // ── Currency formatter ────────────────────────────────────────────────────
   const SYM = { USD: '$', EUR: '€', GBP: '£', JPY: '¥', CHF: 'Fr.' };
