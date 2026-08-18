@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1080">
+<title>Investment Graph</title>
+<script src="d3.v7.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1080px;
+    height: 1920px;
+    background: #ffffff;
+    overflow: hidden;
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 90px 60px 70px;
+    gap: 55px;
+  }
+
+  #headline {
+    flex-shrink: 0;
+    width: 100%;
+    font-size: 52px;
+    font-weight: 900;
+    color: #111;
+    text-align: center;
+    line-height: 1.42;
+    white-space: pre-line;
+    letter-spacing: -0.5px;
+  }
+
+  #graph-wrapper {
+    flex: 1;
+    width: 100%;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ── Axes ── */
+  .axis text {
+    font-weight: 700;
+    fill: #000;
+    font-family: inherit;
+  }
+  .x-axis text { font-size: 26px; }
+  .y-axis text { font-size: 19px; }
+  .axis path,
+  .axis line {
+    stroke: #000;
+    stroke-width: 3px;
+    shape-rendering: crispEdges;
+  }
+
+  /* ── Grid ── */
+  .grid line {
+    stroke: #e8e8e8;
+    stroke-width: 1.5px;
+  }
+  .grid path { display: none; }
+
+  /* ── Dot labels (right margin) ── */
+  .dot-label {
+    font-size: 21px;
+    font-weight: 800;
+    font-family: inherit;
+  }
+</style>
+</head>
+<body>
+
+<div id="headline"></div>
+<div id="graph-wrapper"></div>
+
+<script>
+(async () => {
+  // ── Load data ─────────────────────────────────────────────────────────────
+  const res      = await fetch('_computed.json');
+  const scenario = await res.json();
+  const { text, video, computed } = scenario;
+  const { series, has_dividends, currency } = computed;
+
+  // ── Headline ──────────────────────────────────────────────────────────────
+  const hl = document.getElementById('headline');
+  hl.textContent  = text.headline;
+  hl.style.fontSize = (text.font_size || 52) + 'px';
+  hl.style.color    = text.color || '#111';
+
+  // ── Currency formatter ────────────────────────────────────────────────────
+  const SYM = { USD: '$', EUR: '€', GBP: '£', JPY: '¥', CHF: 'Fr.' };
+  const sym = SYM[currency] || (currency + ' ');
+  function fmtVal(v) {
+    if (v >= 1e6)  return sym + (v / 1e6).toFixed(2) + 'M';
+    if (v >= 1e3)  return sym + (v / 1e3).toFixed(1) + 'K';
+    return sym + Math.round(v);
+  }
+
+  // ── Dimensions ────────────────────────────────────────────────────────────
+  const wrapper = document.getElementById('graph-wrapper');
+  const W = wrapper.clientWidth;
+  const margin = { top: 30, right: 240, bottom: 120, left: 145 };
+  const iW = W - margin.left - margin.right;   // chart inner width
+  const iH = iW;                               // square chart: Y height = X length
+  const svgH = iH + margin.top + margin.bottom;
+
+  // The drawing tip is always at DRAW_X (≈ 2/3 of inner width)
+  const DRAW_RATIO = 2 / 3;
+  const DRAW_X     = iW * DRAW_RATIO;
+
+  const svg = d3.select('#graph-wrapper')
+    .append('svg').attr('width', W).attr('height', svgH);
+  const g = svg.append('g')
+    .attr('transform', `translate(${margin.left},${margin.top})`);
+
+  // ── Data ──────────────────────────────────────────────────────────────────
+  const startIdx = series.findIndex(d => d.invested > 0);
+  const data = startIdx >= 0 ? series.slice(startIdx) : series;
+
+  const startDate = new Date(data[0].date);
+  const endDate   = new Date(data[data.length - 1].date);
+  const totalMs   = endDate - startDate;
+
+  // Min initial window: 45 days so axis is never degenerate at the very start
+  const MIN_WINDOW_MS = 45 * 24 * 3600 * 1000;
+
+  // ── Curve definitions ─────────────────────────────────────────────────────
+  const C = { invested: '#888888', noDiv: '#2979FF', withDiv: '#00C853' };
+  const curveDefs = [
+    { key: 'invested',       color: C.invested, label: ['Montant investi'],           sw: 5 },
+    { key: 'value_no_div',   color: C.noDiv,    label: ['Sans dividendes'],            sw: 7 },
+    ...(has_dividends ? [{
+      key: 'value_with_div', color: C.withDiv,
+      label: ['Avec dividendes', 'réinvestis'], sw: 7,
+    }] : []),
+  ];
+
+  // ── Scales (domains updated every frame) ──────────────────────────────────
+  // xScale: [startDate, visibleEndDate]  →  [0, iW]
+  // The design guarantee:  xScale(currentDate) === DRAW_X  at all times.
+  // visibleEndDate = startDate + elapsed / DRAW_RATIO
+  // → elapsed maps to DRAW_RATIO * iW, so elapsed / total = DRAW_X / iW. ✓
+  const xScale = d3.scaleTime().range([0, iW]);
+  const yScale = d3.scaleLinear().range([iH, 0]);
+
+  // ── Path generators ───────────────────────────────────────────────────────
+  const lineGen = key => d3.line()
+    .x(d => xScale(new Date(d.date)))
+    .y(d => yScale(d[key]))
+    .curve(d3.curveCatmullRom.alpha(0.5));
+
+  const areaGen = key => d3.area()
+    .x(d => xScale(new Date(d.date)))
+    .y0(iH)
+    .y1(d => yScale(d[key]))
+    .curve(d3.curveCatmullRom.alpha(0.5));
+
+  // ── SVG layer order: grid → x-axis → y-axis → curves → dots → labels ─────
+  const gridG  = g.append('g').attr('class', 'grid');
+  const xAxisG = g.append('g').attr('class', 'axis x-axis').attr('transform', `translate(0,${iH})`);
+  const yAxisG = g.append('g').attr('class', 'axis y-axis');
+
+  // Vertical line marking the "now" position (subtle, at DRAW_X)
+  const nowLine = g.append('line')
+    .attr('x1', DRAW_X).attr('x2', DRAW_X)
+    .attr('y1', 0)     .attr('y2', iH)
+    .attr('stroke', '#ccc')
+    .attr('stroke-width', 1.5)
+    .attr('stroke-dasharray', '6 4');
+
+  // Curve paths
+  const areaEls = {}, lineEls = {};
+  curveDefs.forEach(c => {
+    areaEls[c.key] = g.append('path').attr('fill', c.color).attr('fill-opacity', 0.09);
+    lineEls[c.key] = g.append('path')
+      .attr('fill', 'none')
+      .attr('stroke', c.color)
+      .attr('stroke-width', c.sw)
+      .attr('stroke-linecap', 'round')
+      .attr('stroke-linejoin', 'round');
+  });
+
+  // Animated dots at the drawing tip
+  const dotEls = {};
+  curveDefs.forEach(c => {
+    dotEls[c.key] = g.append('circle')
+      .attr('r', 11).attr('fill', c.color)
+      .attr('stroke', '#ffffff').attr('stroke-width', 3)
+      .attr('cx', -60).attr('cy', -60);
+  });
+
+  // Labels in the right margin
+  const LX     = iW + 18;   // x anchor for labels
+  const LINE_H = 26;         // line-height for 2-line labels
+  const labelEls = {};
+  curveDefs.forEach(c => {
+    labelEls[c.key] = c.label.map(txt =>
+      g.append('text')
+        .attr('class', 'dot-label')
+        .attr('fill', c.color)
+        .attr('x', LX)
+        .attr('y', -60)
+        .text(txt)
+    );
+  });
+
+  // ── Animation ─────────────────────────────────────────────────────────────
+  const totalDuration = (video.duration_seconds || 12) * 1000;
+  const SAMPLE_N      = 400;   // max path points per curve per frame
+
+  setTimeout(() => {
+    const t0 = performance.now();
+
+    function frame(now) {
+      const elapsed  = now - t0;
+      const progress = Math.min(elapsed / totalDuration, 1);
+
+      const currentIdx  = Math.min(Math.floor(progress * (data.length - 1)), data.length - 1);
+      const currentData = data.slice(0, Math.max(2, currentIdx + 1));
+      const last        = currentData[currentData.length - 1];
+      const currentDate = new Date(last.date);
+
+      // ── X scale: current date always sits at DRAW_X ───────────────────────
+      // Visible window: [startDate, startDate + elapsedMs / DRAW_RATIO]
+      // This guarantees xScale(currentDate) = DRAW_X exactly.
+      const elapsedMs  = Math.max(MIN_WINDOW_MS, currentDate - startDate);
+      const windowMs   = elapsedMs / DRAW_RATIO;   // total visible time span
+      const visibleEnd = new Date(startDate.getTime() + windowMs);
+      xScale.domain([startDate, visibleEnd]);
+
+      // ── Y scale: current data max (compact, 4 ticks) ──────────────────────
+      const yMax = Math.max(1, d3.max(currentData, d => Math.max(
+        d.invested,
+        d.value_no_div,
+        has_dividends ? d.value_with_div : 0
+      )));
+      yScale.domain([0, yMax * 1.08]).nice();
+
+      // ── Sample current data for path rendering ────────────────────────────
+      const sStep   = Math.max(1, Math.floor(currentData.length / SAMPLE_N));
+      const sampled = currentData.filter((_, i, arr) =>
+        i % sStep === 0 || i === arr.length - 1
+      );
+
+      // ── Redraw curves ─────────────────────────────────────────────────────
+      curveDefs.forEach(c => {
+        areaEls[c.key].attr('d', areaGen(c.key)(sampled));
+        lineEls[c.key].attr('d', lineGen(c.key)(sampled));
+      });
+
+      // ── Y axis + grid (compact: 4 ticks) ──────────────────────────────────
+      gridG.call(d3.axisLeft(yScale).ticks(4).tickSize(-iW).tickFormat(''));
+      yAxisG.call(d3.axisLeft(yScale).ticks(4).tickFormat(fmtVal).tickSize(10));
+
+      // ── X axis: auto ticks from D3, labels rotated ────────────────────────
+      // Show only historical ticks (≤ currentDate); right portion is blank
+      const histYears = d3.timeYear.range(
+        d3.timeYear.ceil(startDate),
+        d3.timeYear.offset(currentDate, 1)
+      );
+      xAxisG.call(
+        d3.axisBottom(xScale)
+          .tickValues(histYears)
+          .tickFormat(d3.timeFormat('%Y'))
+          .tickSize(10)
+      );
+      xAxisG.selectAll('.tick text')
+        .style('text-anchor', 'end')
+        .attr('transform', 'rotate(-40)')
+        .attr('dx', '-0.6em')
+        .attr('dy', '0.05em');
+
+      // ── Move dots to DRAW_X at each curve's Y ─────────────────────────────
+      curveDefs.forEach(c => {
+        dotEls[c.key]
+          .attr('cx', DRAW_X)
+          .attr('cy', yScale(last[c.key]));
+      });
+
+      // ── Labels with collision avoidance ───────────────────────────────────
+      const positions = curveDefs.map(c => ({
+        key:    c.key,
+        adjY:   yScale(last[c.key]),
+        nLines: c.label.length,
+      }));
+      positions.sort((a, b) => a.adjY - b.adjY);
+      const MIN_SEP = 36;
+      for (let i = 1; i < positions.length; i++) {
+        const prev   = positions[i - 1];
+        const needed = prev.adjY + (prev.nLines - 1) * LINE_H + MIN_SEP;
+        if (positions[i].adjY < needed) positions[i].adjY = needed;
+      }
+      const posMap = Object.fromEntries(positions.map(p => [p.key, p.adjY]));
+      curveDefs.forEach(c => {
+        const baseY = posMap[c.key];
+        labelEls[c.key].forEach((el, i) => el.attr('y', baseY + i * LINE_H));
+      });
+
+      // ── Next frame or done ────────────────────────────────────────────────
+      if (progress < 1) {
+        requestAnimationFrame(frame);
+      } else {
+        setTimeout(() => { window.__RENDER_DONE__ = true; }, 700);
+      }
+    }
+
+    requestAnimationFrame(frame);
+  }, 400);
+
+})();
+</script>
+</body>
+</html>

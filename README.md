@@ -238,3 +238,18 @@ create-graph-action-video/
 ```bash
 python3 render.py --scenario scenario.json
 ```
+
+## GitHub Agent prompts
+
+This repository includes three prompt files under `.github/prompts/` that can be used to test GitHub/Copilot agent workflows with a limited scope:
+
+- `scenario-reviewer.prompt.md`: validates `scenario.json` before generation
+- `hook-headline-optimizer.prompt.md`: proposes better French hook headlines for vertical video
+- `ticker-idea-generator.prompt.md`: generates new stock video concepts compatible with the project
+
+These prompts are intentionally narrow:
+
+- single responsibility
+- minimal scope
+- no silent failure
+- minimal change mindset
