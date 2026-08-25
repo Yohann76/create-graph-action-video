@@ -1,0 +1,27 @@
+{
+  "text": {
+    "headline": "If you had invested $10/week in\n<a>Meta</a> for the last 10 years",
+    "text_prefix": "POV:",
+    "tag_colors": { "a": "#0081FB" },
+    "company_name": "Meta",
+    "company_color": "#0081FB",
+    "invested_label": "Invested",
+    "gain_label": "Total gain",
+    "loss_label": "Total loss",
+    "font_size": 54,
+    "color": "#111111"
+  },
+  "data": {
+    "ticker": "META",
+    "start_date": "2015-01-01",
+    "start_investment": 0,
+    "weekly_investment": 10,
+    "currency": "USD",
+    "reinvest_dividends": true
+  },
+  "video": {
+    "output": "video_META.mp4",
+    "duration_seconds": 61,
+    "fps": 30
+  }
+}

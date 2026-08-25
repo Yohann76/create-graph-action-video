@@ -1,0 +1,27 @@
+{
+  "text": {
+    "headline": "You invested $10/week in <a>Shopify</a>\nsince its IPO in 2015",
+    "text_prefix": "POV:",
+    "tag_colors": { "a": "#96BF48" },
+    "company_name": "Shopify",
+    "company_color": "#96BF48",
+    "invested_label": "Invested",
+    "gain_label": "Total gain",
+    "loss_label": "Total loss",
+    "font_size": 58,
+    "color": "#111111"
+  },
+  "data": {
+    "ticker": "SHOP",
+    "start_date": "2015-05-21",
+    "start_investment": 0,
+    "weekly_investment": 10,
+    "currency": "USD",
+    "reinvest_dividends": false
+  },
+  "video": {
+    "output": "video_SHOP.mp4",
+    "duration_seconds": 61,
+    "fps": 30
+  }
+}

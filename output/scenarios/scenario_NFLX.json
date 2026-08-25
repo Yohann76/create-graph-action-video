@@ -1,0 +1,27 @@
+{
+  "text": {
+    "headline": "If you had invested your <a>Netflix</a>\nsubscription every month since 2015",
+    "text_prefix": "POV:",
+    "tag_colors": { "a": "#E50914" },
+    "company_name": "Netflix",
+    "company_color": "#E50914",
+    "invested_label": "Invested",
+    "gain_label": "Total gain",
+    "loss_label": "Total loss",
+    "font_size": 52,
+    "color": "#111111"
+  },
+  "data": {
+    "ticker": "NFLX",
+    "start_date": "2015-01-01",
+    "start_investment": 0,
+    "monthly_investment": 10,
+    "currency": "USD",
+    "reinvest_dividends": false
+  },
+  "video": {
+    "output": "video_NFLX.mp4",
+    "duration_seconds": 61,
+    "fps": 30
+  }
+}

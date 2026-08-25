@@ -132,15 +132,20 @@ def main():
     parser.add_argument("--scenario", default="scenario.json")
     args = parser.parse_args()
 
+    script_dir = Path(__file__).resolve().parent
     scenario_path = Path(args.scenario)
     if not scenario_path.exists():
-        print(f"[ERROR] Scenario not found: {scenario_path}")
-        sys.exit(1)
+        alt = script_dir / "output" / "scenarios" / args.scenario
+        if alt.exists():
+            scenario_path = alt
+        else:
+            print(f"[ERROR] Scenario not found: {scenario_path}")
+            sys.exit(1)
 
     with open(scenario_path) as f:
         scenario = json.load(f)
 
-    project_dir = scenario_path.resolve().parent
+    project_dir = script_dir
 
     # ── D3.js (download once if missing) ─────────────────────────────────────
     ensure_d3(project_dir)
@@ -163,7 +168,9 @@ def main():
     # ── Capture + encode ──────────────────────────────────────────────────────
     duration = float(scenario["video"]["duration_seconds"])
     fps      = int(scenario["video"].get("fps", FPS))
-    output   = project_dir / scenario["video"]["output"]
+    videos_dir = script_dir / "output" / "videos"
+    videos_dir.mkdir(parents=True, exist_ok=True)
+    output   = videos_dir / Path(scenario["video"]["output"]).name
     port     = 9754
 
     webm_path = asyncio.run(capture_via_playwright(project_dir, duration, port))

@@ -1,0 +1,27 @@
+{
+  "text": {
+    "headline": "You invested $10/week in <a>Visa</a>\nsince its IPO during the 2008 crisis",
+    "text_prefix": "POV:",
+    "tag_colors": { "a": "#1A1F71" },
+    "company_name": "Visa",
+    "company_color": "#1A1F71",
+    "invested_label": "Invested",
+    "gain_label": "Total gain",
+    "loss_label": "Total loss",
+    "font_size": 52,
+    "color": "#111111"
+  },
+  "data": {
+    "ticker": "V",
+    "start_date": "2008-03-19",
+    "start_investment": 0,
+    "weekly_investment": 10,
+    "currency": "USD",
+    "reinvest_dividends": true
+  },
+  "video": {
+    "output": "video_V.mp4",
+    "duration_seconds": 61,
+    "fps": 30
+  }
+}

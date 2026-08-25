@@ -1,0 +1,27 @@
+{
+  "text": {
+    "headline": "If you had invested $10/week in\n<a>Microsoft</a> for the last 10 years",
+    "text_prefix": "POV:",
+    "tag_colors": { "a": "#00A4EF" },
+    "company_name": "Microsoft",
+    "company_color": "#00A4EF",
+    "invested_label": "Invested",
+    "gain_label": "Total gain",
+    "loss_label": "Total loss",
+    "font_size": 52,
+    "color": "#111111"
+  },
+  "data": {
+    "ticker": "MSFT",
+    "start_date": "2015-01-01",
+    "start_investment": 0,
+    "weekly_investment": 10,
+    "currency": "USD",
+    "reinvest_dividends": true
+  },
+  "video": {
+    "output": "video_MSFT.mp4",
+    "duration_seconds": 61,
+    "fps": 30
+  }
+}

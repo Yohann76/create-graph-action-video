@@ -1,0 +1,27 @@
+{
+  "text": {
+    "headline": "If you had invested $10/week in\n<a>Tesla</a> for the last 10 years",
+    "text_prefix": "POV:",
+    "tag_colors": { "a": "#A8A9AD" },
+    "company_name": "Tesla",
+    "company_color": "#A8A9AD",
+    "invested_label": "Invested",
+    "gain_label": "Total gain",
+    "loss_label": "Total loss",
+    "font_size": 54,
+    "color": "#111111"
+  },
+  "data": {
+    "ticker": "TSLA",
+    "start_date": "2015-01-01",
+    "start_investment": 0,
+    "weekly_investment": 10,
+    "currency": "USD",
+    "reinvest_dividends": false
+  },
+  "video": {
+    "output": "video_TSLA.mp4",
+    "duration_seconds": 61,
+    "fps": 30
+  }
+}

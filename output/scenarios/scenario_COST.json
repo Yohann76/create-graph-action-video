@@ -1,0 +1,27 @@
+{
+  "text": {
+    "headline": "You invested $10/week in <a>Costco</a>\nsince 2010",
+    "text_prefix": "POV:",
+    "tag_colors": { "a": "#005DAA" },
+    "company_name": "Costco",
+    "company_color": "#005DAA",
+    "invested_label": "Invested",
+    "gain_label": "Total gain",
+    "loss_label": "Total loss",
+    "font_size": 58,
+    "color": "#111111"
+  },
+  "data": {
+    "ticker": "COST",
+    "start_date": "2010-08-25",
+    "start_investment": 0,
+    "weekly_investment": 10,
+    "currency": "USD",
+    "reinvest_dividends": true
+  },
+  "video": {
+    "output": "video_COST.mp4",
+    "duration_seconds": 61,
+    "fps": 30
+  }
+}
