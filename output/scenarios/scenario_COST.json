@@ -1,13 +1,15 @@
 {
   "text": {
-    "headline": "You invested $10/week in <a>Costco</a>\nsince 2010",
+    "headline": "Tu as investi 10$/semaine dans <a>Costco</a>\ndepuis 2010",
     "text_prefix": "POV:",
-    "tag_colors": { "a": "#005DAA" },
+    "tag_colors": {
+      "a": "#005DAA"
+    },
     "company_name": "Costco",
     "company_color": "#005DAA",
-    "invested_label": "Invested",
-    "gain_label": "Total gain",
-    "loss_label": "Total loss",
+    "invested_label": "Investi",
+    "gain_label": "Gain total",
+    "loss_label": "Perte totale",
     "font_size": 58,
     "color": "#111111"
   },

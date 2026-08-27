@@ -1,13 +1,15 @@
 {
   "text": {
-    "headline": "If you had invested $10/week in\n<a>Amazon</a> instead of buying on Amazon",
+    "headline": "Si tu avais investi 10$/semaine dans\n<a>Amazon</a> au lieu d'acheter sur Amazon",
     "text_prefix": "POV:",
-    "tag_colors": { "a": "#FF9900" },
+    "tag_colors": {
+      "a": "#FF9900"
+    },
     "company_name": "Amazon",
     "company_color": "#FF9900",
-    "invested_label": "Invested",
-    "gain_label": "Total gain",
-    "loss_label": "Total loss",
+    "invested_label": "Investi",
+    "gain_label": "Gain total",
+    "loss_label": "Perte totale",
     "font_size": 52,
     "color": "#111111"
   },

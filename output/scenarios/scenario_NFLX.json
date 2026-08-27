@@ -1,13 +1,15 @@
 {
   "text": {
-    "headline": "If you had invested your <a>Netflix</a>\nsubscription every month since 2015",
+    "headline": "Si tu avais investi l'équivalent de ton abonnement\n<a>Netflix</a> chaque mois depuis 2015",
     "text_prefix": "POV:",
-    "tag_colors": { "a": "#E50914" },
+    "tag_colors": {
+      "a": "#E50914"
+    },
     "company_name": "Netflix",
     "company_color": "#E50914",
-    "invested_label": "Invested",
-    "gain_label": "Total gain",
-    "loss_label": "Total loss",
+    "invested_label": "Investi",
+    "gain_label": "Gain total",
+    "loss_label": "Perte totale",
     "font_size": 52,
     "color": "#111111"
   },

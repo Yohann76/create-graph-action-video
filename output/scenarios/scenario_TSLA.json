@@ -1,13 +1,15 @@
 {
   "text": {
-    "headline": "If you had invested $10/week in\n<a>Tesla</a> for the last 10 years",
+    "headline": "Si tu avais investi 10$/semaine dans\n<a>Tesla</a> ces 10 dernières années",
     "text_prefix": "POV:",
-    "tag_colors": { "a": "#A8A9AD" },
+    "tag_colors": {
+      "a": "#A8A9AD"
+    },
     "company_name": "Tesla",
     "company_color": "#A8A9AD",
-    "invested_label": "Invested",
-    "gain_label": "Total gain",
-    "loss_label": "Total loss",
+    "invested_label": "Investi",
+    "gain_label": "Gain total",
+    "loss_label": "Perte totale",
     "font_size": 54,
     "color": "#111111"
   },

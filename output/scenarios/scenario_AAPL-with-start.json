@@ -1,13 +1,15 @@
 {
   "text": {
-    "headline": "You invested $1,299 in <a>Apple</a>\ninstead of buying the first iMac",
+    "headline": "Tu as investi 1 299$ dans <a>Apple</a>\nau lieu d'acheter le premier iMac",
     "text_prefix": "POV:",
-    "tag_colors": { "a": "#86868B" },
+    "tag_colors": {
+      "a": "#86868B"
+    },
     "company_name": "Apple",
     "company_color": "#86868B",
-    "invested_label": "Invested",
-    "gain_label": "Total gain",
-    "loss_label": "Total loss",
+    "invested_label": "Investi",
+    "gain_label": "Gain total",
+    "loss_label": "Perte totale",
     "font_size": 58,
     "color": "#111111"
   },

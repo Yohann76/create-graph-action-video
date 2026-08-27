@@ -24,7 +24,7 @@
   #tiktok-bar {
     flex-shrink: 0;
     width: calc(100% + 80px); /* 100% content + 2×40px body padding */
-    margin: 0 -40px;
+    margin: 0 -40px -50px;
     height: 260px;
     background: #000000;
   }
@@ -271,7 +271,7 @@
   const companyName = text.company_name || computed.ticker;
   const C = { invested: '#E53935', value: text.company_color || '#00C853' };
   const curveDefs = [
-    { key: 'invested',       color: C.invested, label: [text.invested_label || 'Montant investi'], sw: 8 },
+    { key: 'invested',       color: C.invested, label: [text.invested_label || 'Investi'], sw: 8 },
     { key: 'value_with_div', color: C.value,    label: [companyName],       sw: 12 },
   ];
 
@@ -447,7 +447,7 @@
       // ── Barre résultat ────────────────────────────────────────────────────
       const roi    = last.invested > 0 ? ((last.value_with_div / last.invested) - 1) * 100 : 0;
       const isGain = roi >= 0;
-      resultLblEl.textContent = isGain ? (text.gain_label || 'Total gain') : (text.loss_label || 'Total loss');
+      resultLblEl.textContent = isGain ? (text.gain_label || 'Gain total') : (text.loss_label || 'Perte totale');
       resultPctEl.textContent = (isGain ? '+' : '') + roi.toFixed(1) + '%';
       resultPctEl.style.color = isGain ? '#00C853' : '#E53935';
 

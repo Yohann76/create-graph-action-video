@@ -1,13 +1,15 @@
 {
   "text": {
-    "headline": "You invested $10/week in <a>Coca-Cola</a>\nsince 2000",
+    "headline": "Tu as investi 10$/semaine dans <a>Coca-Cola</a>\ndepuis 2000",
     "text_prefix": "POV:",
-    "tag_colors": { "a": "#F40009" },
+    "tag_colors": {
+      "a": "#F40009"
+    },
     "company_name": "Coca-Cola",
     "company_color": "#F40009",
-    "invested_label": "Invested",
-    "gain_label": "Total gain",
-    "loss_label": "Total loss",
+    "invested_label": "Investi",
+    "gain_label": "Gain total",
+    "loss_label": "Perte totale",
     "font_size": 52,
     "color": "#111111"
   },

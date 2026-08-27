@@ -1,6 +1,6 @@
 # Skill — Créer une vidéo de graph boursier
 
-> **Langue** : tous les scénarios sont en anglais — headline, labels (`Invested`, `Total gain`, `Total loss`), nom de société.
+> **Langue** : tous les scénarios sont en **français** — headline, labels (`Investi`, `Gain total`, `Perte totale`), nom de société.
 
 Générateur de vidéos verticales (1080×1920, TikTok/Reels/Shorts) animant l'évolution d'un investissement boursier dans le temps.
 
@@ -126,14 +126,14 @@ python3 render.py --scenario scenario_AAPL.json
 ```json
 {
   "text": {
-    "headline": "You invested $1,299 in <a>Apple</a>\ninstead of buying the first iMac",
+    "headline": "Tu as investi 1 299$ dans <a>Apple</a>\nau lieu d'acheter le premier iMac",
     "text_prefix": "POV:",
     "tag_colors": { "a": "#86868B" },
     "company_name": "Apple",
     "company_color": "#86868B",
-    "invested_label": "Invested",
-    "gain_label": "Total gain",
-    "loss_label": "Total loss",
+    "invested_label": "Investi",
+    "gain_label": "Gain total",
+    "loss_label": "Perte totale",
     "font_size": 58,
     "color": "#111111"
   },
