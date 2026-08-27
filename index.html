@@ -17,7 +17,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 50px 40px 0;
+    padding: 80px 40px 0;
     gap: 28px;
   }
 
@@ -29,10 +29,16 @@
     background: #000000;
   }
 
-  #headline {
+  #headline-section {
     flex-shrink: 0;
     width: 100%;
-    height: 290px;
+    display: flex;
+    flex-direction: column;
+    gap: 92px;
+  }
+
+  #headline {
+    width: 100%;
     overflow: hidden;
     font-size: 58px;
     font-weight: 900;
@@ -41,6 +47,43 @@
     line-height: 1.45;
     letter-spacing: -0.3px;
     -webkit-text-stroke: 1.5px currentColor;
+    text-wrap: balance;
+  }
+
+  #cta-row {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  #subscribe-cta {
+    width: 230px;
+    background: #111111;
+    border-radius: 28px;
+    padding: 26px 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .cta-bell {
+    font-size: 52px;
+    line-height: 1;
+  }
+  .cta-action {
+    font-size: 22px;
+    font-weight: 900;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+  }
+  .cta-handle {
+    font-size: 20px;
+    font-weight: 800;
+    color: #FE2C55;
+    letter-spacing: 0.5px;
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
   }
   #headline .prefix {
     letter-spacing: 1px;
@@ -61,6 +104,7 @@
   }
 
   #headline      { animation: slideDown 0.35s cubic-bezier(.22,.68,0,1.2) both; }
+  #subscribe-cta { animation: fadeUp   0.35s ease-out 0.30s both; }
   #graph-wrapper { animation: fadeIn   0.25s ease-out 0.15s both; }
   #result-bar    { animation: fadeUp   0.30s ease-out 0.20s both; }
   #tiktok-bar    { animation: fadeIn   0.20s ease-out 0.10s both; }
@@ -137,7 +181,16 @@
 </head>
 <body>
 
-<div id="headline"></div>
+<div id="headline-section">
+  <div id="headline"></div>
+  <div id="cta-row">
+    <div id="subscribe-cta">
+      <div class="cta-bell">🔔</div>
+      <div class="cta-action">Abonne-toi</div>
+      <div class="cta-handle">@visual_invest</div>
+    </div>
+  </div>
+</div>
 <div id="graph-wrapper"></div>
 <div id="result-bar">
   <span id="result-label"></span>
@@ -169,20 +222,17 @@
     hl.style.fontSize = (text.font_size || 58) + 'px';
     hl.style.color    = text.color || '#000';
     hl.innerHTML      = '';
-    const lines = headlineText ? headlineText.split('\n') : [''];
-    lines.forEach((line, i) => {
-      const row = document.createElement('div');
-      if (i === 0 && prefix) {
-        const sp = document.createElement('span');
-        sp.className   = 'prefix';
-        sp.textContent = prefix + ' ';
-        row.appendChild(sp);
-      }
-      const content = document.createElement('span');
-      content.innerHTML = colorize(line);
-      row.appendChild(content);
-      hl.appendChild(row);
-    });
+    const row = document.createElement('div');
+    if (prefix) {
+      const sp = document.createElement('span');
+      sp.className   = 'prefix';
+      sp.textContent = prefix + ' ';
+      row.appendChild(sp);
+    }
+    const content = document.createElement('span');
+    content.innerHTML = colorize(headlineText.split('\n').join(' '));
+    row.appendChild(content);
+    hl.appendChild(row);
   } else {
     hl.style.display = 'none';
   }

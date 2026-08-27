@@ -1,0 +1,27 @@
+{
+  "text": {
+    "headline": "You invested $10/week in <a>Coca-Cola</a>\nsince 2000",
+    "text_prefix": "POV:",
+    "tag_colors": { "a": "#F40009" },
+    "company_name": "Coca-Cola",
+    "company_color": "#F40009",
+    "invested_label": "Invested",
+    "gain_label": "Total gain",
+    "loss_label": "Total loss",
+    "font_size": 52,
+    "color": "#111111"
+  },
+  "data": {
+    "ticker": "KO",
+    "start_date": "2000-01-03",
+    "start_investment": 0,
+    "weekly_investment": 10,
+    "currency": "USD",
+    "reinvest_dividends": true
+  },
+  "video": {
+    "output": "video_KO.mp4",
+    "duration_seconds": 61,
+    "fps": 30
+  }
+}

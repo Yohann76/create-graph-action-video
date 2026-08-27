@@ -14,3 +14,4 @@
 | SHOP | Shopify | 2015-05-21 | $10/semaine depuis l'IPO en 2015 |
 | TSLA | Tesla | 2015-01-01 | $10/semaine depuis 10 ans |
 | V | Visa | 2008-03-19 | $10/semaine depuis l'IPO pendant la crise 2008 |
+| KO | Coca-Cola | 2000-01-03 | $10/semaine depuis 2000, dividendes réinvestis |
